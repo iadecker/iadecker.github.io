@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.104.3" />
+
+
+<title>Big Ten Average Offensive Plays - A Hugo website</title>
+<meta property="og:title" content="Big Ten Average Offensive Plays - A Hugo website">
+
+
+  <link href='https://iadecker.github.io/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/rstudio/blogdown">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/rstudio">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">3 min read</span>
+    
+
+    <h1 class="article-title">Big Ten Average Offensive Plays</h1>
+
+    
+    <span class="article-date">2022-10-11</span>
+    
+
+    <div class="article-content">
+      
+
+
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+## ✔ tibble  3.1.8     ✔ dplyr   1.0.9
+## ✔ tidyr   1.2.0     ✔ stringr 1.4.1
+## ✔ readr   2.1.2     ✔ forcats 0.5.2
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<p>#In this next code block, I will load the pbp data for college football into a dataframe called ‘logs.’ I will then filter for teams in the Big Ten.</p>
+<pre class="r"><code>logs &lt;- read_csv(&quot;https://dwillis.github.io/sports-data-files/footballlogs21.csv&quot;)</code></pre>
+<pre><code>## Rows: 1655 Columns: 54
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr   (8): HomeAway, Opponent, Result, TeamFull, TeamURL, Outcome, Team, Con...
+## dbl  (45): Game, PassingCmp, PassingAtt, PassingPct, PassingYds, PassingTD, ...
+## date  (1): Date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>big_ten &lt;- logs %&gt;%
+  filter(Conference == &#39;Big Ten Conference&#39;)</code></pre>
+<p>#Next, I will calculate the average number of offensive plays per team using the TeamFull function and the mean fucntion.</p>
+<pre class="r"><code>avg_plays &lt;- big_ten %&gt;%
+  group_by(TeamFull) %&gt;%
+  summarise(avg_plays = mean(OffensivePlays))</code></pre>
+<p>#In this codeblock, I am creating a bar chart that shows the average offensive plays by Big Ten schools.</p>
+<pre class="r"><code>ggplot() +
+  geom_bar(
+    data=avg_plays, 
+    aes(x=reorder(TeamFull, avg_plays),
+        weight=avg_plays)) +
+  labs(
+    title=&quot;Big Ten Average Offensive Plays&quot;,
+    x=&quot;School&quot;,
+    y=&quot;Avergae Plays&quot;) +
+  theme_minimal() +
+  coord_flip()</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/11/big-ten-average-offensive-plays/index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>##In this cahrt, we see that Purdue ran, on average, the most offensive plays a year ago, with Maryland a pretty close second. Go Terps! On the other end of the spectrum, Iowa was dead last, while Minnesota, Illinois and Wisconsin were also pretty low on the graph. While we can joke about being glad we weren’t players on the offenses of those bottom teams, it does give us context into which teams’ offesnes spent more time on the field than others. This might also hekp teams address roster vacancies when looking at what kind of players they might want to recruit.</p>
+<p>#This is for the 2022 data. Note: The first set of codeblocks were for 2021 data.</p>
+<pre class="r"><code>logs_22 &lt;- read_csv(&quot;https://dwillis.github.io/sports-data-files/footballlogs22.csv&quot;)</code></pre>
+<pre><code>## Rows: 758 Columns: 54
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr   (8): HomeAway, Opponent, Result, TeamFull, TeamURL, Outcome, Team, Con...
+## dbl  (45): Game, PassingCmp, PassingAtt, PassingPct, PassingYds, PassingTD, ...
+## date  (1): Date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>big_ten_22 &lt;- logs_22 %&gt;%
+  filter(Conference == &#39;Big Ten Conference&#39;)</code></pre>
+<p>#Next, I will calculate the average number of offensive plays per team using the TeamFull function and the mean fucntion.</p>
+<pre class="r"><code>avg_plays_2 &lt;- big_ten_22 %&gt;%
+  group_by(TeamFull) %&gt;%
+  summarise(avg_plays_2 = mean(OffensivePlays))</code></pre>
+<pre class="r"><code>ggplot() +
+  geom_bar(
+    data=avg_plays_2, 
+    aes(x=reorder(TeamFull, avg_plays_2),
+        weight=avg_plays_2)) +
+  labs(
+    title=&quot;Big Ten Average Offensive Plays&quot;,
+    x=&quot;School&quot;,
+    y=&quot;Avergae Plays&quot;) +
+  theme_minimal() +
+  coord_flip()</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/11/big-ten-average-offensive-plays/index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+#To start, we see a change at the top of the chart — this year Indiana, NW and Illinois are near the top — while MSU and (sadly) Maryland joiun incumbents Iowa and Wisconsin near the bottom. And while the season is far from over, props to currently-ranked No. 24 Illinois for making a huge jump in avergae offensive plays run so far, going from third-to-last to third. Could new offensive coordinator Barry Lunney Jr., who is in his first season with the Illini, be a factor?</p>
+<p><a href="https://247sports.com/college/illinois/LongFormArticle/Illini-offensive-coordinator-Barry-Lunney-Jr-quotes-about-Wyoming-Illinois-football-Tommy-DeVito-Artur-Sitkowski-191930465/" class="uri">https://247sports.com/college/illinois/LongFormArticle/Illini-offensive-coordinator-Barry-Lunney-Jr-quotes-about-Wyoming-Illinois-football-Tommy-DeVito-Artur-Sitkowski-191930465/</a></p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
