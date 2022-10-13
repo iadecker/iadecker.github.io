@@ -6,7 +6,18 @@
     <description>Recent content on A Hugo website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 11 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://iadecker.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 13 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://iadecker.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How Does Maryland Score Its Points?</title>
+      <link>https://iadecker.github.io/2022/10/13/how-does-maryland-score-its-points/</link>
+      <pubDate>Thu, 13 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://iadecker.github.io/2022/10/13/how-does-maryland-score-its-points/</guid>
+      <description>#Loading our packages
+library(tidyverse) ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ── ## ✔ ggplot2 3.3.6 ✔ purrr 0.3.4 ## ✔ tibble 3.1.8 ✔ dplyr 1.0.9 ## ✔ tidyr 1.2.0 ✔ stringr 1.4.1 ## ✔ readr 2.1.2 ✔ forcats 0.5.2 ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ── ## ✖ dplyr::filter() masks stats::filter() ## ✖ dplyr::lag() masks stats::lag() library(waffle) #Loading the 2022 match data
+match_data &amp;lt;- read_csv(&amp;quot;https://raw.githubusercontent.com/dwillis/NCAAWomensVolleyballData/main/data/ncaa_womens_volleyball_matchstats_2022.csv&amp;quot;) ## Rows: 6077 Columns: 36 ## ── Column specification ──────────────────────────────────────────────────────── ## Delimiter: &amp;quot;,&amp;quot; ## chr (3): team, opponent, home_away ## dbl (31): team_score, opponent_score, s, kills, errors, total_attacks, hit_.</description>
+    </item>
+    
     <item>
       <title>Big Ten Average Offensive Plays</title>
       <link>https://iadecker.github.io/2022/10/11/big-ten-average-offensive-plays/</link>

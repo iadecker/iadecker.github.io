@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.104.3" />
+
+
+<title>How Does Maryland Score Its Points? - A Hugo website</title>
+<meta property="og:title" content="How Does Maryland Score Its Points? - A Hugo website">
+
+
+  <link href='https://iadecker.github.io/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/rstudio/blogdown">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/rstudio">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">3 min read</span>
+    
+
+    <h1 class="article-title">How Does Maryland Score Its Points?</h1>
+
+    
+    <span class="article-date">2022-10-13</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>#Loading our packages</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+## ✔ tibble  3.1.8     ✔ dplyr   1.0.9
+## ✔ tidyr   1.2.0     ✔ stringr 1.4.1
+## ✔ readr   2.1.2     ✔ forcats 0.5.2
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(waffle)</code></pre>
+<p>#Loading the 2022 match data</p>
+<pre class="r"><code>match_data &lt;- read_csv(&quot;https://raw.githubusercontent.com/dwillis/NCAAWomensVolleyballData/main/data/ncaa_womens_volleyball_matchstats_2022.csv&quot;)</code></pre>
+<pre><code>## Rows: 6077 Columns: 36
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr   (3): team, opponent, home_away
+## dbl  (31): team_score, opponent_score, s, kills, errors, total_attacks, hit_...
+## lgl   (1): result
+## date  (1): date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>#Filtering on Maryland, we want to add up the total kills, aces and blocks for the Terps this season.</p>
+<pre class="r"><code>maryland_game_total &lt;- match_data %&gt;%
+  filter(team == &#39;Maryland Terrapins, Terps&#39;) %&gt;%
+  summarise(total_kills = sum(kills),
+            total_aces = sum(aces),
+            total_blocks = sum(block_solos) + sum(round(block_assists/2)))</code></pre>
+<p>#Making our MD vector with our three stats</p>
+<pre class="r"><code>md &lt;- c(&quot;Kills&quot;=767, &quot;Aces&quot;=133, &quot;Total Blocks&quot;=227)</code></pre>
+<p>#Making a waffle chart for Maryland</p>
+<pre class="r"><code>waffle(
+        md/3, 
+        rows = 10, 
+        title=&quot;Maryland&#39;s Scoring&quot;, 
+        xlab=&quot;1 square = 1 yard&quot;, 
+        colors = c(&quot;black&quot;, &quot;red&quot;, &quot;gold&quot;)
+)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/13/how-does-maryland-score-its-points/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>#Filtering on Nebraska (the top team in the Big Ten), we want to add up the total kills, aces and blocks for the Terps this season.</p>
+<pre class="r"><code>nebraska_game_total &lt;- match_data %&gt;%
+  filter(team == &#39;Nebraska Cornhuskers&#39;) %&gt;%
+  summarise(total_kills = sum(kills),
+            total_aces = sum(aces),
+            total_blocks = sum(block_solos) + sum(round(block_assists/2)))</code></pre>
+<p>#Making our NB vector with our three stats</p>
+<pre class="r"><code>nb &lt;- c(&quot;Kills&quot;=683, &quot;Aces&quot;=64, &quot;Total Blocks&quot;=139)</code></pre>
+<p>#Making a waffle chart for Nebraska</p>
+<pre class="r"><code>waffle(
+        nb/3, 
+        rows = 10, 
+        title=&quot;Nebraska&#39;s Scoring&quot;, 
+        xlab=&quot;1 square = 1 yard&quot;, 
+        colors = c(&quot;black&quot;, &quot;red&quot;, &quot;gray&quot;)
+)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/13/how-does-maryland-score-its-points/index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>#Comparing Maryland and Nebraska using the overlapping vectors (kills, aces, blocks) in the same chart.</p>
+<pre class="r"><code>iron(
+ waffle(md/3, 
+        rows = 10, 
+        title=&quot;Maryland&#39;s Scoring&quot;, 
+        xlab=&quot;1 square = 1 yard&quot;, 
+        colors = c(&quot;black&quot;, &quot;red&quot;, &quot;gold&quot;)
+        ),
+ waffle(nb/2.5, 
+        rows = 10, 
+        title=&quot;Nebraska&#39;s Scoring&quot;, 
+        xlab=&quot;1 square = 1 yard&quot;,
+        colors = c(&quot;black&quot;, &quot;red&quot;, &quot;gold&quot;)
+        )
+)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/13/how-does-maryland-score-its-points/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+#Does Maryland score its points differently than Nebraska?</p>
+<p>Yes. Using offensive scoring only, Maryland seems to score more of its points in blocks and aces than Nebraska. It’s interesting to see how few of Nebraska’s points come from aces. Maybe they’re just really good at wearing other teams down and play a lot of long points. Or, they could just be really good at the net and get kills upon their opponent’s return.</p>
+<p>While both teams get a majority of their points from kills, the Cornhuskers seem to get more points from that metric than the Terps. Maryland might get more points from aces and blocks than Nebraska, but the latter is undefeated in conference play and 14-1 on the season, whereas Maryland is 1-5 in the B10 and 10-8 overall.</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
