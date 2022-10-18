@@ -114,7 +114,7 @@
         xlab=&quot;1 square = 1 yard&quot;, 
         colors = c(&quot;black&quot;, &quot;red&quot;, &quot;gold&quot;)
 )</code></pre>
-<p><img src="/2022/10/13/how-does-maryland-score-its-points/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="https://iadecker.github.io/2022/10/13/how-does-maryland-score-its-points/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>#Filtering on Nebraska (the top team in the Big Ten), we want to add up the total kills, aces and blocks for the Terps this season.</p>
 <pre class="r"><code>nebraska_game_total &lt;- match_data %&gt;%
   filter(team == &#39;Nebraska Cornhuskers&#39;) %&gt;%
@@ -131,7 +131,7 @@
         xlab=&quot;1 square = 1 yard&quot;, 
         colors = c(&quot;black&quot;, &quot;red&quot;, &quot;gold&quot;)
 )</code></pre>
-<p><img src="/2022/10/13/how-does-maryland-score-its-points/index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="https://iadecker.github.io/2022/10/13/how-does-maryland-score-its-points/index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>#Comparing Maryland and Nebraska using the overlapping vectors (kills, aces, blocks) in the same chart.</p>
 <pre class="r"><code>iron(
  waffle(md/3, 
@@ -147,7 +147,7 @@
         colors = c(&quot;black&quot;, &quot;red&quot;, &quot;gold&quot;)
         )
 )</code></pre>
-<p><img src="/2022/10/13/how-does-maryland-score-its-points/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<p><img src="https://iadecker.github.io/2022/10/13/how-does-maryland-score-its-points/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 #Does Maryland score its points differently than Nebraska?</p>
 <p>Yes, but not by much. Using offensive scoring only, Maryland seems to score more of its points in blocks and aces than Nebraska. It’s interesting to see how few of Nebraska’s points come from aces. Maybe they’re just really good at wearing other teams down and play a lot of long points. Or, they could just be really good at the net and get kills upon their opponent’s return.</p>
 <p>While both teams get a majority of their points from kills, the Cornhuskers seem to get more points from that metric than the Terps. Maryland might get more points from aces and blocks than Nebraska, but the latter is undefeated in conference play and 14-1 on the season, whereas Maryland is 1-5 in the B10 and 10-8 overall.</p>
