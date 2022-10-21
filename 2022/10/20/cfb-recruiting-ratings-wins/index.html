@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.104.3" />
+
+
+<title>CFB Recruiting Ratings &amp; Wins - A Hugo website</title>
+<meta property="og:title" content="CFB Recruiting Ratings &amp; Wins - A Hugo website">
+
+
+  <link href='https://iadecker.github.io/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/rstudio/blogdown">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/rstudio">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">5 min read</span>
+    
+
+    <h1 class="article-title">CFB Recruiting Ratings &amp; Wins</h1>
+
+    
+    <span class="article-date">2022-10-20</span>
+    
+
+    <div class="article-content">
+      
+
+
+<pre class="r"><code>#Loading our library
+library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+## ✔ tibble  3.1.8     ✔ dplyr   1.0.9
+## ✔ tidyr   1.2.0     ✔ stringr 1.4.1
+## ✔ readr   2.1.2     ✔ forcats 0.5.2
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<p>#Let’s dig into the relationship between college football recruiting rankings and wins using data from 2015-2021. The goal is to see whether there’s a relationship between the two (do better recruiting classes translate into more wins?), describe it and place Maryland in that context.</p>
+<pre class="r"><code>#Reading in the two dataframes as csv files
+records_by_year &lt;- read_csv(&quot;https://dwillis.github.io/sports-data-files/all_teams.csv&quot;)</code></pre>
+<pre><code>## Rows: 904 Columns: 21
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (3): team, conference, division
+## dbl (18): year, expected_wins, total_games, total_wins, total_losses, total_...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>recruiting_rankings_by_year &lt;- read_csv(&quot;https://dwillis.github.io/sports-data-files/all_rankings.csv&quot;)</code></pre>
+<pre><code>## Rows: 400 Columns: 3
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (1): team
+## dbl (2): rating, year
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>#Using an inner_join to combine the two dataframes loaded in the previous r code block
+recruiting_rankins_and_records &lt;- inner_join(recruiting_rankings_by_year, records_by_year, by = c(&quot;team&quot;, &quot;year&quot;))</code></pre>
+<pre class="r"><code>#Creating dataframes for Maryland, Alabama, LSU and Cincinnati
+umd &lt;- recruiting_rankins_and_records %&gt;% filter(team == &quot;Maryland&quot;)
+bama &lt;- recruiting_rankins_and_records %&gt;% filter(team == &quot;Alabama&quot;)
+lsu &lt;- recruiting_rankins_and_records %&gt;% filter(team == &quot;LSU&quot;)
+cinci &lt;- recruiting_rankins_and_records %&gt;% filter(team == &quot;Cincinnati&quot;)
+
+#Creating a scatterplot charting recruiting rating by total_wins with a trend line that isolates MD (red), Bama (green), LSU (yellow) and Cincy (blue)
+ggplot() + 
+  geom_point(data=recruiting_rankins_and_records, aes(x=rating, y=total_wins)) +
+  geom_smooth(data=recruiting_rankins_and_records, aes(x=rating, y=total_wins), method=&quot;lm&quot;) +
+  geom_point(data=umd, aes(x=rating, y=total_wins), color=&quot;red&quot;) +
+  geom_point(data=bama, aes(x=rating, y=total_wins), color=&quot;green&quot;) +
+  geom_point(data=lsu, aes(x=rating, y=total_wins), color=&quot;yellow&quot;) +
+  geom_point(data=cinci, aes(x=rating, y=total_wins), color=&quot;blue&quot;)</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/20/cfb-recruiting-ratings-wins/index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>#Then create a linear model that helps you explain the strength of the relationship, and write up several paragraphs about what you’ve found.</p>
+<pre class="r"><code>#Creating a linear regression model to see the relationship between rating and total_wins using our combined dataframe
+fit &lt;- lm(rating ~ total_wins, data = recruiting_rankins_and_records)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = rating ~ total_wins, data = recruiting_rankins_and_records)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -64.446 -27.525  -6.753  26.029  80.762 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 196.0666     4.9784  39.384  &lt; 2e-16 ***
+## total_wins    4.5415     0.6152   7.382 1.16e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 34.64 on 348 degrees of freedom
+## Multiple R-squared:  0.1354, Adjusted R-squared:  0.1329 
+## F-statistic: 54.49 on 1 and 348 DF,  p-value: 1.161e-12</code></pre>
+<p>#Finally, what questions does this prompt? Could you measure this relationship in another way?</p>
+<p>#Observations
+The first thing to not is that Maryland gets close to rising above the trendline several times, but since 2015, Maryland has been a below-average team in terms of recruiting rating and total wins. This paints a picture of a team that has, historically, not been great at recruiting and that has struggled to win games in a hyper-competitive athletic conference like the Big Ten.</p>
+<p>Additionally, Maryland’s highest recruiting rating was 230.24 in 2021. Out of each team’s ranking per year since 2015, that is good for the 147 rating… That same year, 2021, the Terps went 7-6 — a pretty uninspiring season that finished with a mediocre record. What we can glean from Maryland is that there seems to be a relationship between lower recruiting ranking and number of wins.</p>
+<p>For this, we can turn to our linear regression model. We know that since the p-value is less than 0.05 the relationship between the two factors is statistically significant. But, we also know that this rating only explains about 13% of a team’s total wins, so it’s not the end all be all when examining victories. If we think about it, this makes sense; a team may have a strong or weak recruiting class, but those players mostly don’t log a ton of minutes, so they’re not heavily contributing to the team on a week-to-week basis.</p>
+<p>I was also curious as to the rankings of teams that over or unperformed this model. In other words, which teams had strong recruiting classes but had bad records, and which teams had weak classes but played well. Alabama checks out. They consistently have the top recruiting classes, or are near the top, and always have successful seasons. Then you have a team like Maryland that has meh recruiting classes and doesn’t perform particularly well. Five times LSU has performed below the trend line despite having strong recruiting classes…interesting.</p>
+<p>And then we have Cincinnati, a team that has pretty low recruiting rankings but has exceeded expectations in terms of total wins. The Bearcats have never had a rating above 200, yet they have been above the trendline in each of the three years they’ve received a rating score. Look at those blue dots. Seems like Cincy needs to trade in the AAC for the Big Ten — I hear they’re expanding…</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
