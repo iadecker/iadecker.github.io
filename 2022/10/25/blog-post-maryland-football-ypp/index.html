@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.104.3" />
+
+
+<title>Maryland Football YPP - A Hugo website</title>
+<meta property="og:title" content="Maryland Football YPP - A Hugo website">
+
+
+  <link href='https://iadecker.github.io/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/rstudio/blogdown">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/rstudio">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">5 min read</span>
+    
+
+    <h1 class="article-title">Maryland Football YPP</h1>
+
+    
+    <span class="article-date">2022-10-25</span>
+    
+
+    <div class="article-content">
+      
+
+
+<pre class="r"><code>#Loading libraries
+library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+## ✔ tibble  3.1.8     ✔ dplyr   1.0.9
+## ✔ tidyr   1.2.0     ✔ stringr 1.4.1
+## ✔ readr   2.1.2     ✔ forcats 0.5.2
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggrepel)</code></pre>
+<pre class="r"><code>#Loading data
+logs &lt;- read_csv(&quot;https://dwillis.github.io/sports-data-files/footballlogs1122.csv&quot;)</code></pre>
+<pre><code>## Rows: 18050 Columns: 57
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr   (9): HomeAway, Opponent, Result, TeamFull, TeamURL, Outcome, Team, Con...
+## dbl  (47): Game, PassingCmp, PassingAtt, PassingPct, PassingYds, PassingTD, ...
+## date  (1): Date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>#Creating a wins and losses dataframe
+win_loss_logs &lt;- logs %&gt;% 
+  mutate(
+    wins = case_when(
+      grepl(&quot;W&quot;, Outcome) ~ 1, 
+      grepl(&quot;L&quot;, Outcome) ~ 0)
+)</code></pre>
+<pre class="r"><code>#Creating columns for offensive and defensive yards per play by team and season
+win_loss_logs %&gt;% 
+  group_by(Team, Season) %&gt;% 
+  summarise(
+    TotalPlays = sum(OffensivePlays), 
+    TotalYards = sum(OffensiveYards), 
+    DefensivePlays = sum(DefPlays), 
+    DefensiveYards = sum(DefYards), 
+    TotalWins = sum(wins)) %&gt;% 
+  mutate(
+    OffensiveYPP = TotalYards/TotalPlays, 
+    DefensiveYPP = DefensiveYards/DefensivePlays) -&gt; ypp</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;Team&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code>#plotting a chart using off and def ypp
+ggplot() + 
+  geom_point(
+    data=ypp, aes(x=OffensiveYPP, y=DefensiveYPP)
+    )</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/25/blog-post-maryland-football-ypp/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>#Creating a bubble chart using total wins as the size
+ggplot() + 
+  geom_point(
+    data=ypp, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins)
+    )</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/25/blog-post-maryland-football-ypp/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>#Introducing alpha to alter the transparency of the bubbles and a range to adjust the size
+ggplot() + 
+  geom_point(
+    data=ypp, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins),
+    alpha = .3) + 
+  scale_size(range = c(3, 8), name=&quot;Wins&quot;)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/25/blog-post-maryland-football-ypp/index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>#Creating a dataframe for just MD using our ypp dataset
+maryland &lt;- ypp %&gt;% filter(Team == &quot;Maryland&quot;)</code></pre>
+<pre class="r"><code>#Charting Maryland on our bubble chart
+ggplot() + 
+  geom_point(
+    data=ypp, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins), 
+    color=&quot;grey&quot;, 
+    alpha=.5) + 
+  geom_point(
+    data=maryland, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins), 
+    color=&quot;red&quot;)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/25/blog-post-maryland-football-ypp/index_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>#Calculating the average so we can add lines to our graph
+ypp %&gt;% 
+  ungroup() %&gt;% 
+  summarise(
+    offense = mean(OffensiveYPP), 
+    defense = mean(DefensiveYPP)
+    )</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##   offense defense
+##     &lt;dbl&gt;   &lt;dbl&gt;
+## 1    5.74    5.61</code></pre>
+<pre class="r"><code>#Adding vertical and horizontal lines to our bubble chart
+ggplot() + 
+  geom_point(
+    data=ypp, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins), 
+    color=&quot;grey&quot;, 
+    alpha=.5) + 
+  geom_point(
+    data=maryland, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins), 
+    color=&quot;red&quot;) + 
+  geom_vline(xintercept = 5.863151) + 
+  geom_hline(yintercept = 5.448228)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/25/blog-post-maryland-football-ypp/index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre class="r"><code>#Adding years to the MD bubbles in our chart
+ggplot() + 
+  geom_point(
+    data=ypp, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins), 
+    color=&quot;grey&quot;, 
+    alpha=.5) + 
+  geom_point(
+    data=maryland, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins), 
+    color=&quot;red&quot;) + 
+  geom_vline(xintercept = 5.863151) + 
+  geom_hline(yintercept = 5.448228) +
+  geom_text_repel(
+    data=maryland, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, label=Season)
+  )</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/25/blog-post-maryland-football-ypp/index_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>#Lede
+When Mike Locksley was hired in December of 2018, he was tasked with turning Maryland into a Big Ten contender; this season, he might just be doing that.</p>
+<p>According to data collected from college football games from 2011 through this season, Maryland is having its best year not only in the Locksley era, but also in the data available from over a decade ago.</p>
+<p>Here is the chart:</p>
+<pre class="r"><code>#Adding text to our bubble chart
+ggplot() + 
+  geom_point(
+    data=ypp, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins), 
+    color=&quot;grey&quot;, 
+    alpha=.5) + 
+  geom_point(
+    data=maryland, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, size=TotalWins), 
+    color=&quot;red&quot;) + 
+  geom_vline(xintercept = 5.863151) + 
+  geom_hline(yintercept = 5.448228) +
+  geom_text_repel(
+    data=maryland, 
+    aes(x=OffensiveYPP, y=DefensiveYPP, label=Season)
+  ) +
+  labs(title=&quot;Maryland&#39;s YPP performance in the past decade&quot;, subtitle=&quot;In the last ten years, Maryland&#39;s offense and defense has more often than not been below average.&quot;, caption=&quot;Source: NCAA | By Ian Decker&quot;)  + theme_minimal() + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10), 
+    panel.grid.minor = element_blank()
+    )</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/25/blog-post-maryland-football-ypp/index_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>This graph shows team performance as defined by offensive and defensive yards per game on a season by season basis. As such, the lower-right quadrant represents the best results for teams; if a school is in the bottom-right, it means that its offense scores a lot and its defense prevents other teams from scoring. In other words, the farther to the right a team’s offense is the more it scores. And the farther up (the upper-left side) a team’s defense is, the weaker it was that season.</p>
+<p>I want to highlight a couple seasons in the past decade plus of Maryland football. Let’s start with the 2012-13 season. According to our chart, that season was the Terps’ worst offensive season in the data we have available to us. But, it was also the season in which the team gave up the fewest yards per game on the defensive side of the football. Now, this was before the team joined the Big Ten, so the competition wasn’t as strong, which could explain a high-level defense, but it is interesting to note that the offense and defense were polar opposites in 2012-13.</p>
+<p>In its first season in the Big Ten (2014-15), Maryland had a pretty solid defense but struggled on offense but still won seven games. And while the offense improves in the next two seasons, three, six and four games the next three years. It’s interesting how improved offense but weakened defense leads to fewer wins. This makes sense, for it could be possible that Maryland scored the ball more but couldn’t keep teams out of the endzone and lost games.</p>
+<p>The Locksley Era: Intuition says that Maryland has improved under Mike Locksley. In his first season, Maryland had a solid offense and a okay defense. The team won five games. The next year, the defense fell apart (in fact, it’s the worst amongst the years we have data for), and the offense took a large step back. Unsurprisingly, the team won three games. During the Covid year, the team went 2-3 before going 7-6 last season even though, according to our chart, both off and def ypp worsened. And then we have this season where the team is 6-2 and is having its strongest season in the data we have available to us.</p>
+<p>It remains to be seen if the team can continue its strong play, but Locksley seems to have this team on the right track.</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
