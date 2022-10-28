@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.104.3" />
+
+
+<title>Volleyball Aces - A Hugo website</title>
+<meta property="og:title" content="Volleyball Aces - A Hugo website">
+
+
+  <link href='https://iadecker.github.io/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/rstudio/blogdown">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/rstudio">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">5 min read</span>
+    
+
+    <h1 class="article-title">Volleyball Aces</h1>
+
+    
+    <span class="article-date">2022-10-27</span>
+    
+
+    <div class="article-content">
+      
+
+
+<pre class="r"><code>#Loading our libraries
+library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+## ✔ tibble  3.1.8     ✔ dplyr   1.0.9
+## ✔ tidyr   1.2.0     ✔ stringr 1.4.1
+## ✔ readr   2.1.2     ✔ forcats 0.5.2
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggbeeswarm)
+library(ggrepel)</code></pre>
+<pre class="r"><code>#Setting up the seed for the random number generator.
+set.seed(1234)</code></pre>
+<pre class="r"><code>#Loading our player data
+players &lt;- read.csv(&quot;https://raw.githubusercontent.com/dwillis/NCAAWomensVolleyballData/main/data/ncaa_womens_volleyball_playerstats_2022.csv&quot;)</code></pre>
+<pre class="r"><code>#Creating a new dataframe for players who&#39;ve played at least 20 matches
+activeplayers &lt;- players %&gt;% filter(mp&gt;=20) %&gt;% filter(!is.na(aces)) %&gt;% filter(!is.na(pos)) %&gt;% mutate(aces_per_match = aces/mp)</code></pre>
+<pre class="r"><code>#Looking at the median number of aces per match
+summary(activeplayers$aces_per_match)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.1905  0.6000  0.6070  0.9091  3.1200</code></pre>
+<pre class="r"><code>#Creating a dataframe for servers who average at least 0.8 aces per match
+servers &lt;- activeplayers %&gt;% filter(aces_per_match &gt; .8)</code></pre>
+<pre class="r"><code>#Creating a beeswarm plot for all the players in our list
+ggplot() + geom_beeswarm(data=servers, aes(x=pos, y=aces_per_match), color=&quot;grey&quot;)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/27/volleyball-aces/index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>#Creating a dataframe filtering for Maryland players who fit our criteria
+umd &lt;- activeplayers %&gt;% 
+  filter(team == &quot;Maryland Terrapins, Terps&quot;) %&gt;% 
+  filter(aces_per_match &gt; .8) %&gt;% 
+  arrange(desc(aces_per_match))</code></pre>
+<pre class="r"><code>#Making a beeswarm plot highlighting the five Maryland players who fit our criteria
+ggplot() + 
+  geom_beeswarm(
+    data=servers, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;grey&quot;) + 
+  geom_beeswarm(
+    data=umd, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;red&quot;)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/27/volleyball-aces/index_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>#Lede
+In a conference that has produced five of the past 10 national champions, Maryland must find ways to stay competitive, and it might have found the answer in aces.</p>
+<p>Maryland has five players who average around one ace per game, which gives the Terps a formidable quintet from behind the line.</p>
+<p>In the graph below, we highlight how those five players — defensive specialist Milan Gomillion, middle blocker Laila Ricks, outside hitter Sam Csire and setters Sydney Dowler and Erin Engel — give Maryland quality production in terms of aces.</p>
+<pre class="r"><code>#Final graph naming the five Maryland players who fit our criteria
+ggplot() + 
+  geom_beeswarm(
+    data=servers, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;grey&quot;) + 
+  geom_beeswarm(
+    data=umd, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;red&quot;) +
+  geom_text_repel(
+    data=umd, 
+    aes(x=pos, y=aces_per_match, label=full_name)) +
+   labs(title=&quot;If you&#39;re Maryland, who do you want serving?&quot;, subtitle=&quot;The Terps have five players averaging about an ace per match.&quot;, caption=&quot;Source: NCAA | By Ian Decker&quot;)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/27/volleyball-aces/index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+When we first created this chart, we used 0.9 as our minimum for aces per game. We chose this number because we had determined it was an above-average metric to decide what qualified a player to be a “good” server of the ball. I decided to drop it down to 0.8 to include an additional player from Maryland’s roster — Csire — because she is also a capable server.</p>
+<p>While the Terps would undoubtedly want Dowler serving every time, the question of who should serve second becomes a little trickier to determine. While it’s possible that Csire serves because she is arguably the team’s top player and an experienced junior player, it’s hard to distinguish the serving capabilities between Gomillion, Ricks — who may be mislisted as a middle blocker (she really is an outside hitter) — and Engel.</p>
+<p>Because we are just measuring aces and not serve attempts per game, we might not have the most effective metric in determining who is a good server.</p>
+<p>But Maryland has five players who can serve, and not one of them is a senior. Csire, Ricks and Dowler are juniors, while Gomillion and Engel are sophomores. Serving continuity will certainly be something the Terps can build on next season.</p>
+<p>In our activeplaers dataframe, we filtered for players who had played at least 20 games, but this actually limited our dataset. For example, four teams in the Big Ten — Nebraska, Ohio State, Wisconsin and Minnesota — have all played fewer than 20 games. Their combined records this season — 38-6. What’s more, these are the top four teams in the conference.</p>
+<p>Because our initial querry eliminated every player from these four teams, our data evidently is missing some significant information.</p>
+<p>To remedy this, I created a new dataframe where the minimum games played was 16 to include Nebraska, Ohio State, Wisconsin and Minnesota. Once I did that and added those four dataframes to our plot, I saw eight players included who weren’t there before, headlined by Ohio State’s Gabby Gonzales. But, for as good as Gonzales has been this year, Dowler is an equally capable server.</p>
+<p>The purpose of this chart is to show that sometimes the data can be misleading. Had we looked at players who’ve played more than 20 matches, we would have missed eight players from the top four teams in the conference.</p>
+<pre class="r"><code>activeplayers_2 &lt;- players %&gt;% filter(mp&gt;=16) %&gt;% filter(!is.na(aces)) %&gt;% filter(!is.na(pos)) %&gt;% mutate(aces_per_match = aces/mp)</code></pre>
+<pre class="r"><code>summary(activeplayers_2$aces_per_match)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.1176  0.5417  0.5582  0.8636  3.1200</code></pre>
+<pre class="r"><code>servers_2 &lt;- activeplayers_2 %&gt;% filter(aces_per_match &gt; .8)</code></pre>
+<pre class="r"><code>osu &lt;- activeplayers_2 %&gt;% 
+  filter(team == &quot;Ohio St. Buckeyes&quot;) %&gt;% 
+  filter(aces_per_match &gt; .8) %&gt;% 
+  arrange(desc(aces_per_match))
+
+wisc &lt;- activeplayers_2 %&gt;% 
+  filter(team == &quot;Wisconsin Badgers&quot;) %&gt;% 
+  filter(aces_per_match &gt; .8) %&gt;% 
+  arrange(desc(aces_per_match))
+
+minn &lt;- activeplayers_2 %&gt;% 
+  filter(team == &quot;Minnesota Golden Gophers&quot;) %&gt;% 
+  filter(aces_per_match &gt; .8) %&gt;% 
+  arrange(desc(aces_per_match))
+
+neb &lt;- activeplayers_2 %&gt;% 
+  filter(team == &quot;Nebraska Cornhuskers&quot;) %&gt;% 
+  filter(aces_per_match &gt; .8) %&gt;% 
+  arrange(desc(aces_per_match))</code></pre>
+<pre class="r"><code>ggplot() + 
+  geom_beeswarm(
+    data=servers_2, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;grey&quot;) + 
+  geom_beeswarm(
+    data=osu, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;red&quot;) +
+  geom_text_repel(
+    data=osu, 
+    aes(x=pos, y=aces_per_match, label=full_name)) + 
+  geom_beeswarm(
+    data=wisc, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;blue&quot;) +
+  geom_text_repel(
+    data=wisc, 
+    aes(x=pos, y=aces_per_match, label=full_name)) + 
+  geom_beeswarm(
+    data=neb, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;green&quot;) +
+  geom_text_repel(
+    data=neb, 
+    aes(x=pos, y=aces_per_match, label=full_name)) + 
+  geom_beeswarm(
+    data=minn, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;gold&quot;) +
+  geom_text_repel(
+    data=minn, 
+    aes(x=pos, y=aces_per_match, label=full_name)) + 
+  geom_beeswarm(
+    data=umd, 
+    groupOnX=TRUE, 
+    aes(x=pos, y=aces_per_match), color=&quot;orange&quot;) +
+  geom_text_repel(
+    data=umd, 
+    aes(x=pos, y=aces_per_match, label=full_name)) +
+   labs(title=&quot;How do the Terps compare in aces per match against elite Big Ten teams?&quot;, subtitle=&quot;Maryland setter Sydney Dowler is one of the best servers in the conference.&quot;, caption=&quot;Source: NCAA | By Ian Decker&quot;)</code></pre>
+<p><img src="https://iadecker.github.io/2022/10/27/volleyball-aces/index_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+
