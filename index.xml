@@ -6,7 +6,16 @@
     <description>Recent content on A Hugo website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 01 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://iadecker.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 10 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://iadecker.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Are College Teams Passing More on First Down?</title>
+      <link>https://iadecker.github.io/2022/11/10/are-college-teams-passing-more-on-first-down/</link>
+      <pubDate>Thu, 10 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://iadecker.github.io/2022/11/10/are-college-teams-passing-more-on-first-down/</guid>
+      <description>#loading libraries and data library(tidyverse) library(cfbfastR) #loading pbp data since 2014 tictoc::tic() pbp &amp;lt;- data.frame() seasons &amp;lt;- 2014:cfbfastR:::most_recent_cfb_season() progressr::with_progress({ pbp &amp;lt;- cfbfastR::load_cfb_pbp(seasons) }) tictoc::toc() ## 180.017 sec elapsed #looking at our pbp data glimpse(pbp) ## Rows: 1,398,307 ## Columns: 331 ## $ year &amp;lt;dbl&amp;gt; 2014, 2014, 2014, 2014, 2014, 2014, 2… ## $ week &amp;lt;int&amp;gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1… ## $ id_play &amp;lt;dbl&amp;gt; 4.</description>
+    </item>
+    
     <item>
       <title>NFL Redzone EPA Reverse Engineering</title>
       <link>https://iadecker.github.io/2022/11/01/nfl-redzone-epa-reverse-engineering/</link>
