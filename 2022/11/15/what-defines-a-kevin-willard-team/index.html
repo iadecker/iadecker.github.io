@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.104.3" />
+
+
+<title>What Defines a Kevin Willard Team? - A Hugo website</title>
+<meta property="og:title" content="What Defines a Kevin Willard Team? - A Hugo website">
+
+
+  <link href='https://iadecker.github.io/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/rstudio/blogdown">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/rstudio">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">8 min read</span>
+    
+
+    <h1 class="article-title">What Defines a Kevin Willard Team?</h1>
+
+    
+    <span class="article-date">2022-11-15</span>
+    
+
+    <div class="article-content">
+      
+
+
+<pre class="r"><code>#Loading our libraries
+library(tidyverse)
+library(ggbeeswarm)
+library(ggrepel)</code></pre>
+<pre class="r"><code>#Loading our random number generator
+set.seed(1234)</code></pre>
+<pre class="r"><code>#Reading in the game logs data
+logs &lt;- read_csv(&quot;https://dwillis.github.io/sports-data-files/logs1222.csv&quot;)</code></pre>
+<pre class="r"><code>#Filtering for MD and creating win/loss columns
+maryland &lt;- logs %&gt;%
+  filter(TeamFull == &#39;Maryland Terrapins&#39;) %&gt;%
+  mutate(outcome = case_when(
+  grepl(&quot;W&quot;, W_L) ~ 1, 
+  grepl(&quot;L&quot;, W_L) ~ 0))</code></pre>
+<p>#Seton Hall stats</p>
+<pre class="r"><code>#Filtering for Seton Hall and creating win/loss columns
+seton_hall &lt;- logs %&gt;%
+  filter(TeamFull == &#39;Seton Hall Pirates&#39;) %&gt;%
+  mutate(outcome = case_when(
+  grepl(&quot;W&quot;, W_L) ~ 1, 
+  grepl(&quot;L&quot;, W_L) ~ 0))</code></pre>
+<pre class="r"><code>#Dataframe for SH wins and losses
+seton_hall %&gt;%
+  group_by(Season, outcome) %&gt;%
+  summarise(count = n())</code></pre>
+<pre><code>## # A tibble: 22 × 3
+## # Groups:   Season [11]
+##    Season    outcome count
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;
+##  1 2011-2012       0    13
+##  2 2011-2012       1    21
+##  3 2012-2013       0    18
+##  4 2012-2013       1    15
+##  5 2013-2014       0    17
+##  6 2013-2014       1    17
+##  7 2014-2015       0    15
+##  8 2014-2015       1    16
+##  9 2015-2016       0     9
+## 10 2015-2016       1    25
+## # … with 12 more rows</code></pre>
+<pre class="r"><code>#Dataframe for SH scoring average
+seton_hall_scoring_avg &lt;- seton_hall %&gt;% 
+  group_by(Season) %&gt;%
+  summarise(total_score = sum(TeamScore), games = max(Game), average = total_score/games, opp_total_score = sum(OpponentScore), games = max(Game), opp_average = opp_total_score/games)</code></pre>
+<pre class="r"><code>#Dataframe for SH total 3PA
+seton_hall_total_3PA &lt;- seton_hall %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(Team3PA), games = max(Game), average = total/games, opp_total = sum(Opponent3PA), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for SH total 3pt pct
+seton_hall_total_3PPCT &lt;- seton_hall %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(Team3PPCT), games = max(Game), average = total/games, opp_total = sum(Opponent3PPCT), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for SH total FTA
+seton_hall_total_FTA &lt;- seton_hall %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(TeamFTA), games = max(Game), average = total/games, opp_total = sum(OpponentFTA), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for SH rebounds
+seton_hall_rebounds &lt;- seton_hall %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(TeamTotalRebounds), games = max(Game), average = total/games, opp_total = sum(OpponentTotalRebounds), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for SH turnovers
+seton_hall_turnovers &lt;- seton_hall %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(TeamTurnovers), games = max(Game), average = total/games, opp_total = sum(OpponentTurnovers), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for SH fouls
+seton_hall_fouls &lt;- seton_hall %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(TeamPersonalFouls), games = max(Game), average = total/games, opp_total = sum(OpponentPersonalFouls), games = max(Game), opp_average = opp_total/games)</code></pre>
+<p>#Maryland stats</p>
+<pre class="r"><code>#Dataframe for MD scoring avg
+maryland_scoring_avg &lt;- maryland %&gt;% 
+  group_by(Season) %&gt;%
+  summarise(total_score = sum(TeamScore), games = max(Game), average = total_score/games, opp_total_score = sum(OpponentScore), games = max(Game), opp_average = opp_total_score/games)</code></pre>
+<pre class="r"><code>#Dataframe for MD 3PA
+maryland_total_3PA &lt;- maryland %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(Team3PA), games = max(Game), average = total/games, opp_total = sum(Opponent3PA), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for MD 3pt pct
+maryland_total_3PPCT &lt;- maryland %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(Team3PPCT), games = max(Game), average = total/games, opp_total = sum(Opponent3PPCT), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for MD FTA
+maryland_total_FTA &lt;- maryland %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(TeamFTA), games = max(Game), average = total/games, opp_total = sum(OpponentFTA), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for MD rebounds
+maryland_rebounds &lt;- maryland %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(TeamTotalRebounds), games = max(Game), average = total/games, opp_total = sum(OpponentTotalRebounds), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for MD turnovers
+maryland_turnovers &lt;- maryland %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(TeamTurnovers), games = max(Game), average = total/games, opp_total = sum(OpponentTurnovers), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Dataframe for MD fouls
+maryland_fouls &lt;- maryland %&gt;%
+  group_by(Season) %&gt;%
+  summarise(total = sum(TeamPersonalFouls), games = max(Game), average = total/games, opp_total = sum(OpponentPersonalFouls), games = max(Game), opp_average = opp_total/games)</code></pre>
+<pre class="r"><code>#Line chart comparing MD and SH 3pt pct
+ggplot() + 
+  geom_line(data=seton_hall_total_3PPCT, aes(x=Season, y=average, group=1), color=&quot;blue&quot;) + 
+  geom_line(data=maryland_total_3PPCT, aes(x=Season, y=average, group=1), color=&quot;red&quot;) + 
+  scale_y_continuous(limits = c(0, .65))</code></pre>
+<p><img src="https://iadecker.github.io/2022/11/15/what-defines-a-kevin-willard-team/index_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+#In terms of three-point percentage, Maryland has historically shot the ball better than Seton Hall, and the Terps have struggled through three games under Willard so far against weak competition. Three games is a limited sample size, but it is something to watch as the season progresses.</p>
+<pre class="r"><code>#Line chart comparing MD and SH turnovers
+ggplot() + 
+  geom_line(data=seton_hall_turnovers, aes(x=Season, y=average, group=1), color=&quot;blue&quot;) + 
+  geom_line(data=maryland_turnovers, aes(x=Season, y=average, group=1), color=&quot;red&quot;) + 
+  scale_y_continuous(limits = c(0, 20))</code></pre>
+<p><img src="https://iadecker.github.io/2022/11/15/what-defines-a-kevin-willard-team/index_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+#Look away Maryland fans. In each of the past three seasons, Seton Hall has given the ball away more than Maryland has. Sloppy play was a big knock against Turgeon’s teams and ultimately led to his demise, but Willard has his team committing just 10 turnovers through three games. Hopefully that level of discipline continues in league play.</p>
+<pre class="r"><code>#Line chart comparing MD and SH rebounds
+ggplot() + 
+  geom_line(data=seton_hall_rebounds, aes(x=Season, y=average, group=1), color=&quot;blue&quot;) + 
+  geom_line(data=maryland_rebounds, aes(x=Season, y=average, group=1), color=&quot;red&quot;) + 
+  scale_y_continuous(limits = c(15, 45))</code></pre>
+<p><img src="https://iadecker.github.io/2022/11/15/what-defines-a-kevin-willard-team/index_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+#Something the Maryland faithful might enjoy seeing is that Seton Hall was a better rebounding team for parts of Willard’s tenure and last season as well. Ther Terps’ 38 boards a game is an encouraging sign, but again, they have come against weaker competition.</p>
+<pre class="r"><code>#Line chart comparing MD and SH scoring avg
+ggplot() + 
+  geom_line(data=seton_hall_scoring_avg, aes(x=Season, y=average, group=1), color=&quot;blue&quot;) + 
+  geom_line(data=maryland_scoring_avg, aes(x=Season, y=average, group=1), color=&quot;red&quot;) + 
+  scale_y_continuous(limits = c(50, 100))</code></pre>
+<p><img src="https://iadecker.github.io/2022/11/15/what-defines-a-kevin-willard-team/index_files/figure-html/unnamed-chunk-24-1.png" width="672" />
+#This chart shows that Seton Hall has had higher scoring averages than Maryland every year since 2017-18. The Big East is not quite as competitive as the Big Ten, but there are still some excellent teams the Pirates faced. In this data, Seton Hall has lost to Villanova 18 times, Marquette 13, Providence 11, Butler 10 and Creighton 9. Still, last year, the Pirates scored about 71.9 points per game to the Terps’ 70.9</p>
+<pre class="r"><code>#dataframe with team with &gt; 31% 3 pt pct
+three_point_teams &lt;- logs %&gt;%
+  filter(Team3PPCT &gt; 0.31) %&gt;%
+  filter(Team3PPCT &lt; 0.39)
+
+#Beeswarm chart comparing MD and SH 3pt pct with teams with &gt; 31% 3 pt pct
+ggplot() + 
+  geom_beeswarm(
+    data=three_point_teams, 
+    groupOnX=TRUE, 
+    aes(x=Season, y=Team3PPCT), color=&quot;grey&quot;) + 
+  geom_beeswarm(
+    data=maryland_total_3PPCT, 
+    groupOnX=TRUE, 
+    aes(x=Season, y=average), color=&quot;red&quot;) +
+  geom_beeswarm(
+    data=seton_hall_total_3PPCT, 
+    groupOnX=TRUE, 
+    aes(x=Season, y=average), color=&quot;blue&quot;)</code></pre>
+<p><img src="https://iadecker.github.io/2022/11/15/what-defines-a-kevin-willard-team/index_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<p>#Admittedly, this is not the world’s greatest chart. There are way too many data points and things are all over the place. I just wasn’t sure how to make it less messy. I tried to limit the number of teams we had by filtering for teams with three-point shooting percentages between 31 and 39. I also did not know how to spread out the seasons along the x-axis so they weren’t overlapping.</p>
+<p>#I was able to construct some kind of chart, so there’s that. But what I do want to point out is that since 2011/12, Seton Hall was a better three-point shooting team than Maryland until 2014-15. The teams went back and forth for the next few years with the Pirates pacing the Terps last season.</p>
+<p>#Thoughts</p>
+<p>Washington Post columnist Barry Svrluga loves playing the resume game. Oftentimes, he’ll pick a newly signed player or recently-hired coach and play the blind-resume game where he compares those players/coaches with previous members/coaches of the team to see what a team is getting.</p>
+<p><a href="https://www.washingtonpost.com/sports/2022/03/21/kevin-willard-maryland-basketball/" class="uri">https://www.washingtonpost.com/sports/2022/03/21/kevin-willard-maryland-basketball/</a></p>
+<p>When Maryland Athletic Director Damon Evans hired Kevin Willard from Seton Hall to replace Mark Turgeon, this is what Svrluga wrote:</p>
+<p>Résumé C: Here’s a guy who also reached five of the past six NCAAs and would have made it six out of seven had there been no pandemic. He won a first-round game just once and never made a Sweet 16, won the regular season conference title one of those years and finished third four times. His NCAA tournament record in that span: 1-5. His overall record in 15 years as a head coach: 270-210, a .563 winning percentage.</p>
+<p>He then wrote this about Turgeon:</p>
+<p>Résumé B: He reached the tourney five of the past six years it was held, and that would have been six of seven seasons had the 2020 event not been canceled because of the pandemic. He won first-round games in four of those five trips, advanced to a Sweet 16, tied for the regular season conference championship once and finished third or better four times in that stretch. His NCAA tournament record in that span: 5-5. His overall record in 23 seasons as a head coach: 471-272, a .634 winning percentage.</p>
+<p>As Svrluga points out, Willard and Turgeon are similar coaches. But how about their teams. In this exercise, I have tried to look at the similarities and differences between Seton Hall and Maryland in recent years to try and understand what kind of coach the Terrapin faithful is getting.</p>
+<p>Willard’s teams have long been defined for a defensive toughness and offensive freedom. His teams have also tended to generally outperform their opponents in most shooting metrics. However, the Big East as a collective conference is not as competitive/deep as the Big Ten.</p>
+<p>As Svrluga wrote, Willard is a ‘fine’ choice, but will that cut in in College Park? Maryland has started the 2022/23 season with three wins over Niagara, Western Carolina and Binghampton and don’t face a Big Ten opponent until Dec. 2 (Illinois). Through their first three games, the Terps 72.7 points per game, shooting 47% from the field and 25% from three. They’re averaging 38 rebounds per game and about 10 turnovers. In addition to talking about crabs in his media press conferences, Willard has talked about working hard on the defensive end and figuring it out offensively, two things Maryland is certainly still working on.</p>
+<p>After charting various statistics by team and comparing Seton Hall with Maryland, Willard’s teams over the past decade look pretty similar to what Turgeon had his Terps doing, so Svrluga might have been on to something when he observed the similarities between the two bench bosses.</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
